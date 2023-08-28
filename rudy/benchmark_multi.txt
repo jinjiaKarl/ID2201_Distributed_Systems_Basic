@@ -1,0 +1,65 @@
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+  execution: local
+     script: k6_main.js
+     output: -
+
+  scenarios: (100.00%) 1 scenario, 5 max VUs, 40s max duration (incl. graceful stop):
+           * default: 5 looping VUs for 10s (gracefulStop: 30s)
+
+
+running (01.0s), 5/5 VUs, 100 complete and 0 interrupted iterations
+default   [  10% ] 5 VUs  01.0s/10s
+
+running (02.0s), 5/5 VUs, 195 complete and 0 interrupted iterations
+default   [  20% ] 5 VUs  02.0s/10s
+
+running (03.0s), 5/5 VUs, 285 complete and 0 interrupted iterations
+default   [  30% ] 5 VUs  03.0s/10s
+
+running (04.0s), 5/5 VUs, 380 complete and 0 interrupted iterations
+default   [  40% ] 5 VUs  04.0s/10s
+
+running (05.0s), 5/5 VUs, 470 complete and 0 interrupted iterations
+default   [  50% ] 5 VUs  05.0s/10s
+
+running (06.0s), 5/5 VUs, 565 complete and 0 interrupted iterations
+default   [  60% ] 5 VUs  06.0s/10s
+
+running (07.0s), 5/5 VUs, 655 complete and 0 interrupted iterations
+default   [  70% ] 5 VUs  07.0s/10s
+
+running (08.0s), 5/5 VUs, 750 complete and 0 interrupted iterations
+default   [  80% ] 5 VUs  08.0s/10s
+
+running (09.0s), 5/5 VUs, 840 complete and 0 interrupted iterations
+default   [  90% ] 5 VUs  09.0s/10s
+
+running (10.0s), 5/5 VUs, 935 complete and 0 interrupted iterations
+default   [ 100% ] 5 VUs  10.0s/10s
+
+running (10.1s), 0/5 VUs, 940 complete and 0 interrupted iterations
+default ✓ [ 100% ] 5 VUs  10s
+
+     data_received..................: 22 kB 2.1 kB/s
+     data_sent......................: 78 kB 7.8 kB/s
+     http_req_blocked...............: avg=649.26µs min=117µs   med=452µs   max=10.02ms p(95)=1.52ms   p(99)=5.09ms   p(99.99)=9.86ms  count=940
+     http_req_connecting............: avg=555.2µs  min=90µs    med=377µs   max=9.89ms  p(95)=1.32ms   p(99)=4.88ms   p(99.99)=9.73ms  count=940
+     http_req_duration..............: avg=52.66ms  min=44.37ms med=51.95ms max=76.86ms p(95)=61.66ms  p(99)=66.48ms  p(99.99)=76.55ms count=940
+       { expected_response:true }...: avg=52.66ms  min=44.37ms med=51.95ms max=76.86ms p(95)=61.66ms  p(99)=66.48ms  p(99.99)=76.55ms count=940
+     http_req_failed................: 0.00% ✓ 0         ✗ 940
+     http_req_receiving.............: avg=963.24µs min=22µs    med=414µs   max=15.29ms p(95)=3.18ms   p(99)=7.46ms   p(99.99)=15.17ms count=940
+     http_req_sending...............: avg=65.18µs  min=9µs     med=37µs    max=7.21ms  p(95)=123.19µs p(99)=535.08µs p(99.99)=6.77ms  count=940
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s      p(95)=0s       p(99)=0s       p(99.99)=0s      count=940
+     http_req_waiting...............: avg=51.63ms  min=44.07ms med=50.98ms max=72.84ms p(95)=59.22ms  p(99)=65.55ms  p(99.99)=72.72ms count=940
+     http_reqs......................: 940   93.477758/s
+     iteration_duration.............: avg=53.43ms  min=44.84ms med=52.87ms max=77.86ms p(95)=62.87ms  p(99)=67.25ms  p(99.99)=77.53ms count=940
+     iterations.....................: 940   93.477758/s
+     vus............................: 5     min=5       max=5
+     vus_max........................: 5     min=5       max=5
+

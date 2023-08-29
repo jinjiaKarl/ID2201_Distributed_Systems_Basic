@@ -18,7 +18,11 @@ init(Port) ->
             error
     end.
 
-% Erlang even allows several processes to listen to a socket.
+% https://erlang.org/download/otp_src_R11B-3.readme
+% gen_tcp now allows for several processes to issue accept
+% calls to the same listen-socket simultaniously. The different
+% accepting processes will get connected sockets on a
+% first-come-first-served basis.
 handlers(Listen, N) ->
     case N of
         0 ->

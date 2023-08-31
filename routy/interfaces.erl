@@ -11,7 +11,7 @@ remove(Name, Intf) ->
     lists:keydelete(Name, 1, Intf).
 
 lookup(Name, Intf) ->
-    case lists:keyfind(Name, 1, Intf) ->
+    case lists:keyfind(Name, 1, Intf) of
         {_, _, Pid} ->
             {ok, Pid};
         false ->
@@ -19,7 +19,7 @@ lookup(Name, Intf) ->
     end.
 
 ref(Name, Intf) ->
-    case lists:keyfind(Name, 1, Intf) ->
+    case lists:keyfind(Name, 1, Intf) of
         {_, Ref, _} ->
             {ok, Ref};
         false ->
@@ -27,7 +27,7 @@ ref(Name, Intf) ->
     end.
 
 name(Ref, Intf) ->
-    case lists:keyfind(Ref, 2, Intf) ->
+    case lists:keyfind(Ref, 2, Intf) of
         {Name, _, _} ->
             {ok, Name};
         false ->

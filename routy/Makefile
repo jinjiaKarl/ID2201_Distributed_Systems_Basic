@@ -9,7 +9,8 @@ MODS = map \
 	   dijkstra \
 	   interfaces \
 	   hist \
-	   routy 
+	   routy \
+	   test
 
 compile: $(MODS:%=%.beam)
 

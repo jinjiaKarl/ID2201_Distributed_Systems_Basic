@@ -1,4 +1,5 @@
 -module(hist).
+-export([new/1, update/3]).
 
 
 % messages from Name will always be seen as old.
@@ -14,7 +15,7 @@ update(Node, N, History) ->
             old;
         {_, OldN} ->
             NewHistory = lists:keyreplace(Node, 1, History, {Node, N}),
-            {new, NewHistory}
+            {new, NewHistory};
         false ->
             {new, [{Node, N} | History]}
     end.

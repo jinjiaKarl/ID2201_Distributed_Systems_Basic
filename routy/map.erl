@@ -1,6 +1,7 @@
 -module(map).
 -export([new/0, update/3, reachable/2, all_nodes/1]).
 
+% each entry consists of a city with a list of directly connected cities.
 new() ->
     [].
 
@@ -17,7 +18,6 @@ reachable(Node, Map) ->
     end.
 
 % [{berlin,[london,paris]}]
-% each entry consists of a city with a list of directly connected cities
 % all_nodes([]) ->
 %     [];
 % all_nodes([ { Node, Links }| Rest]) ->

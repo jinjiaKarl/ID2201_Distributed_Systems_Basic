@@ -1,4 +1,4 @@
--module(loggy_lamport).
+-module(loggy_vect).
 -export([start/1, stop/1]).
 
 % OTP 21.0 introduced the logger module, so I change the module name to loggy.
@@ -11,13 +11,19 @@ stop(Logger) ->
     Logger ! stop.
 
 init(Nodes) ->
-    loop(time:clock(Nodes), []).
+    loop(vect:clock(Nodes), []).
 
 loop(Clock, HBQ) ->
     receive 
         {log, From, Time, Msg} ->
-            UpdatedClock = time:update(From, Time, Clock),
-            UpdatedHBQ = lists:keysort(2, [{From, Time, Msg} | HBQ]),
+            UpdatedClock = vect:update(From, Time, Clock),
+
+        % sort the HBQ above accrod to the time
+            UpdatedHBQ = lists:sort(fun(A, B) ->
+                {_, TimeA, _} = A,
+                {_, TimeB, _} = B,
+                lists:foldl(fun({_, T}, Sum) -> T+Sum end, 0, TimeA ) < lists:foldl(fun({_, T}, Sum) -> T+Sum end, 0, TimeB)
+            end, [{From, Time, Msg} | HBQ]),
             % iterate over the HBQ, if it is safe, then log the event from the HBQ
             % if it is not, add it back to the HBQ
             % io:format("HBQ: ~p, length: ~p Clock: ~p~n", [UpdatedHBQ, length(UpdatedHBQ), UpdatedClock]),
@@ -38,11 +44,11 @@ log(From, Time, Msg) ->
 checkSafe(_, [], UnSafe) ->
     UnSafe;
 checkSafe(Clock, [{From, Time, Msg} | Rest], UnSafe) ->
-    case time:safe(Time, Clock) of
+    case vect:safe(Time, Clock) of
         true ->
             log(From, Time, Msg),
             checkSafe(Clock, Rest, UnSafe);
         false ->
-            % because the HBQ and Clock are sorted, we can stop iterating once we find an unsafe event
-            checkSafe(Clock, [], [{From, Time, Msg} | Rest])
+            % add the current to HBQ
+            checkSafe(Clock, Rest, [{From, Time, Msg} | UnSafe])
     end.

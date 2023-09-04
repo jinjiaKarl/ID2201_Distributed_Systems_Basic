@@ -1,4 +1,4 @@
--module(worker_lamport).
+-module(worker_vect).
 -export([start/5, stop/1, peers/2]).
 
 start(Name, Logger, Seed, Sleep, Jitter) ->
@@ -11,7 +11,7 @@ init(Name, Logger, Seed, Sleep, Jitter) ->
     rand:seed(exsss, Seed),
     receive
         {peers, Peers} ->
-            loop(Name, Logger, Peers, Sleep, Jitter, time:zero());
+            loop(Name, Logger, Peers, Sleep, Jitter, vect:zero());
         stop ->
             ok
     end.
@@ -22,7 +22,7 @@ loop(Name, Logger, Peers, Sleep, Jitter, CurTime) ->
     Wait = rand:uniform(Sleep),
     receive
         {msg, Time, Msg} ->
-            UpdatedTime = time:inc(Name, time:merge(CurTime, Time)),
+            UpdatedTime = vect:inc(Name, vect:merge(CurTime, Time)),
             Logger ! {log, Name, UpdatedTime, {received, Msg}},
             loop(Name, Logger, Peers, Sleep, Jitter, UpdatedTime);
         stop ->
@@ -31,7 +31,7 @@ loop(Name, Logger, Peers, Sleep, Jitter, CurTime) ->
             Logger ! {log, Name, time, {error, Error}}
     after Wait ->
         Selected = select(Peers),
-        Time = time:inc(Name, CurTime),
+        Time = vect:inc(Name, CurTime),
         Msg = {hello, rand:uniform(100)},
         Selected ! {msg, Time, Msg},
         % If we don’t introduce a delay here, 

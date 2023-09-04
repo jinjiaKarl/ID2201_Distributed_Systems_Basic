@@ -1,5 +1,5 @@
 -module(test).
--export([run/2, run_lamport_no_q/2, run_lamport/2, run_lamport_hbq/2]).
+-export([run/2, run_lamport_no_q/2, run_lamport/2, run_lamport_hbq/2, run_vector/2]).
 
 % Sleep: milliseconds, the maximum time a worker process to send a message to one of its peer
 % Jitter: milliseconds, delay between sending the message to the peer and informing the logger.
@@ -81,3 +81,20 @@ run_lamport_hbq(Sleep, Jitter) ->
     worker_lamport:stop(A),
     worker_lamport:stop(B),
     worker_lamport:stop(C).
+
+run_vector(Sleep, Jitter) ->
+    Logger = loggy_vect:start([john, paul, ringo, george]),
+    A = worker_vect:start(john, Logger, 13, Sleep, Jitter),
+    B = worker_vect:start(paul, Logger, 23, Sleep, Jitter),
+    C = worker_vect:start(ringo, Logger, 36, Sleep, Jitter),
+    D = worker_vect:start(george, Logger, 49, Sleep, Jitter),
+    worker_vect:peers(A, [B, C, D]),
+    worker_vect:peers(B, [A, C, D]),
+    worker_vect:peers(C, [A, B, D]),
+    worker_vect:peers(D, [A, B, C]),
+    timer:sleep(5000),
+    loggy_vect:stop(Logger),
+    worker_vect:stop(A),
+    worker_vect:stop(B),
+    worker_vect:stop(C),
+    worker_vect:stop(D).

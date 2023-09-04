@@ -7,9 +7,12 @@ ERL = erl -name sweden@192.168.5.15 -setcookie secret -connect_all false -noshel
 
 MODS = loggy \
 	   loggy_lamport \
+	   loggy_vect \
 	   worker \
 	   worker_lamport \
+	   worker_vect \
 	   time \
+	   vect \
 	   test
 
 start: compile

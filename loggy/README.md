@@ -33,7 +33,7 @@ log: na john {sending,{hello,16}}
 log: na ringo {received,{hello,3}}
 stop
 
-# the order is correct, but no 
+# the order is correct
 (usa@192.168.5.15)4> test:run(2000,0).
 log: na paul {sending,{hello,91}}
 log: na john {received,{hello,91}}
@@ -65,7 +65,67 @@ stop
 
 ```
 
-## introduce lamport time to guarantee partial order
+## second try
+When we only set the time, the order is still out of order.
+```bash
+(usa@192.168.5.15)3> test:run_lamport_no_q(2000,1000).
+log: 1 john {received,{hello,91}}
+log: 1 john {received,{hello,34}}
+log: 1 george {sending,{hello,34}}
+log: 1 paul {sending,{hello,91}}
+log: 2 john {received,{hello,8}}
+log: 5 george {received,{hello,77}}
+log: 1 george {received,{hello,27}}
+log: 2 paul {sending,{hello,8}}
+log: 5 john {sending,{hello,77}}
+log: 3 john {received,{hello,52}}
+log: 1 ringo {sending,{hello,27}}
+log: 3 paul {sending,{hello,52}}
+log: 7 paul {received,{hello,63}}
+log: 7 john {sending,{hello,63}}
+log: 8 john {received,{hello,30}}
+log: 9 john {received,{hello,47}}
+log: 2 john {received,{hello,2}}
+log: 9 paul {sending,{hello,47}}
+log: 8 george {sending,{hello,30}}
+log: 12 george {received,{hello,16}}
+log: 2 ringo {sending,{hello,2}}
+log: 12 john {sending,{hello,16}}
+log: 10 ringo {received,{hello,3}}
+stop
+```
+
+## third try
+loggy collect all log messages and sort them by time, if message is safe, print it out.
+```
+(usa@192.168.5.15)1> test:run_lamport(2000,1000).
+log: 1 ringo {sending,{hello,27}}
+log: 1 george {received,{hello,27}}
+log: 1 paul {sending,{hello,91}}
+log: 1 george {sending,{hello,34}}
+log: 1 john {received,{hello,34}}
+log: 1 john {received,{hello,91}}
+log: 2 ringo {sending,{hello,2}}
+log: 2 john {received,{hello,2}}
+log: 2 paul {sending,{hello,8}}
+log: 2 john {received,{hello,8}}
+log: 3 paul {sending,{hello,52}}
+log: 3 john {received,{hello,52}}
+log: 5 john {sending,{hello,77}}
+log: 5 george {received,{hello,77}}
+log: 7 john {sending,{hello,63}}
+log: 7 paul {received,{hello,63}}
+log: 8 george {sending,{hello,30}}
+log: 8 john {received,{hello,30}}
+log: 9 paul {sending,{hello,47}}
+log: 9 john {received,{hello,47}}
+stop
+
+```
+
+
+
+## introduce lamport clock to guarantee partial order
 
 One counter per process:
 • initially set to 0

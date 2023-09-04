@@ -1,7 +1,7 @@
 -module(loggy).
 -export([start/1, stop/1]).
 
-% OTP 21.0 introduced the logger module, so we change the name
+% OTP 21.0 introduced the logger module, so I change the module name to loggy.
 
 % given a list of nodes that will send it messages
 start(Nodes) ->

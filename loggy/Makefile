@@ -6,11 +6,14 @@
 ERL = erl -name sweden@192.168.5.15 -setcookie secret -connect_all false -noshell
 
 MODS = loggy \
+	   loggy_lamport \
 	   worker \
+	   worker_lamport \
+	   time \
 	   test
 
 start: compile
-	$(ERL) -s test start
+	$(ERL) -eval "test:run_lamport(2000, 1000)"
 
 test: compile
 	$(ERL2) -s test test_route

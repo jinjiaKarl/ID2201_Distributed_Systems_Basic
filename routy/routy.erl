@@ -45,10 +45,10 @@ router(Name, N, Hist, Intf, Table, Map) ->
             {ok, Down} = interfaces:name(Ref, Intf),
             io:format("~w: exit recived from ~w Reason ~s~n", [Name, Down, Reason]),
             % TODO: update interfaces, table, map
-            % Intf1 = interfaces:remove(Down, Intf),
+            Intf1 = interfaces:remove(Down, Intf),
             % Table1 = dijkstra:table(interfaces:list(Intf1), Map),
             % io:format("interfaces: ~w ~w table: ~w~n", [Intf, Intf1, Table1]),
-            router(Name, N, Hist, Intf1, Table1, Map);
+            router(Name, N, Hist, Intf1, Table, Map);
         {status, From} ->
             % get status
             From ! {status, {Name, N, Hist, Intf, Table, Map}},

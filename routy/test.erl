@@ -1,6 +1,8 @@
 -module(test).
 -export([get_status/1, start/0, stop/0, test_route/0]).
 
+-define(machine, 'sweden@192.168.5.15').
+
 % topology
 % +--------------+    +---------------+
 % | stockholm(r1)+----+   lund(r2)    |
@@ -33,7 +35,8 @@ get_status(Reg) ->
 
 
 start() ->
-    Machine = 'sweden@192.168.5.15',
+    % Machine = 'sweden@192.168.5.15',
+    Machine = ?machine,
     routy:start(r1, stockholm),
     routy:start(r2, lund),
     routy:start(r3, malmo),

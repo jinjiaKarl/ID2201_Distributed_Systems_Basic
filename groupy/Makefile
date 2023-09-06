@@ -8,6 +8,7 @@ ERL = erl -name sweden@192.168.5.15 -setcookie secret -connect_all false -noshel
 MODS = gui \
 	   worker \
 	   gms1 \
+	   gms2 \
 	   test 
 
 

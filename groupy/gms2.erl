@@ -1,7 +1,7 @@
--module(gms1).
+-module(gms2).
 -export([start/1, start/2]).
+-define(timout,100).
 
-% no handle failures
 
 start(Id) ->
     Self = self(),
@@ -51,11 +51,15 @@ start(Id, Grp) ->
 init(Id, Grp, Master) ->
     io:format("Slave ~p started~n", [Id]),
     Self = self(),
+    % it could be that a node wants to join a dead leader, so we need timeout
     Grp ! {join, Master, Self},
     receive
         {view, [Leader | Slaves], Group} ->
+            erlang:minitor(process, Leader),
             Master ! {view, Group},
             slave(Id, Master, Leader, Slaves, Group)
+    after ?timout ->
+        Master ! {error, "no reply from leader"}
     end.
 
 slave(Id, Master, Leader, Slaves, Group) ->
@@ -76,6 +80,23 @@ slave(Id, Master, Leader, Slaves, Group) ->
             % a multicasted view from the leader. A view is delivered to the master process.
             Master ! {view, Group2},
             slave(Id, Master, Leader, Slaves2, Group2);
+        {'DOWN', _Ref, process, Leader, _Reason} ->
+            election(Id, Master, Slaves, Group);
         stop ->
             ok
+    end.
+
+
+election(Id, Master, Slaves, [_|Group]) ->
+    io:format("Slave ~p: election~n", [Id]),
+    Self = self(),
+    case Slaves of
+        [Self | Rest] ->
+            %  process finds itself being the first node, and it will thus become the leader of the group.
+            bcast(Id, {view, Slaves, Group}, Rest),
+            Master ! {view, Group},
+            leader(Id, Master, Slaves, Group);
+        [Leader | Rest] ->
+            erlang:minitor(process, Leader),
+            slave(Id, Master, Leader, Rest, Group)
     end.

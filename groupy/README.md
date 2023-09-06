@@ -21,6 +21,7 @@ slave group process
 
 # run
 
+## gms1
 ```bash
 1> W1 = test:first(1, gms1,1000).
 Master 1 started
@@ -33,4 +34,13 @@ Group 1 multicasting {msg,{state_request,#Ref<0.3769713491.1692139521.90227>}}
 Group 1 multicasting {msg,{state,#Ref<0.3769713491.1692139521.90227>,
                                  {133,137,130}}}
 Group 1 stopped
+```
+
+## gms2
+```bash
+# > W1 = test:moew(3, gms2, 1000).
+> W1 = test:first(1, gms2, 1000).
+> test:add(2, gms2, W1, 1000) 
+> test:add(3, gms2, W1, 1000) 
+> test:add(3, gms2, W1, 1000) 
 ```

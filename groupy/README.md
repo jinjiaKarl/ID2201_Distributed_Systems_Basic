@@ -68,9 +68,12 @@ Group 4 stopped
 ```
 ## gms2_crash
 ```bash
-1> W1 = test:more(4, gms2_crash, 1000).
-Master 1 started
-Slave 2 started
-Slave 3 started
-Slave 4 started
+# when the leader is dead, the slaves's state is out of sync
+# the process of broadcast is not atomic, if the leader is dead, the change msgs cannot forward to all slaves
+1> W1 = test:more(10, gms2_crash, 1000).
+
+# slow down the speed of chaneg color, set the arghh 100, extend the sleep to 10000
+1> W1 = test:more(10, gms2_crash, 10000).
 ```
+
+## gms3

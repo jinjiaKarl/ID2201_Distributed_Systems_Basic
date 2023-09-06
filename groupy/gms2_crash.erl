@@ -1,8 +1,9 @@
 -module(gms2_crash).
 -export([start/1, start/2]).
 -define(timout,100).
--define(arghh,100).
+-define(arghh,1000).
 
+% no reliable multicast
 
 start(Id) ->
     Rnd = random:uniform(1000),

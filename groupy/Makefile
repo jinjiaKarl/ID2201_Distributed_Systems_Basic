@@ -10,6 +10,7 @@ MODS = gui \
 	   gms1 \
 	   gms2 \
 	   gms2_crash \
+	   gms3 \
 	   test 
 
 

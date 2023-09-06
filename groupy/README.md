@@ -77,3 +77,6 @@ Group 4 stopped
 ```
 
 ## gms3
+```bash
+1> W1 = test:more(5, gms3, 1000).
+```

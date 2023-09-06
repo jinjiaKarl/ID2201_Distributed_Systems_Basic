@@ -1,14 +1,17 @@
--module(gms2).
+-module(gms2_crash).
 -export([start/1, start/2]).
 -define(timout,100).
+-define(arghh,100).
 
 
 start(Id) ->
+    Rnd = random:uniform(1000),
     Self = self(),
-    {ok, spawn_link(fun() -> init(Id, Self) end)}.
+    {ok, spawn_link(fun() -> init(Id, Rnd, Self) end)}.
 
-init(Id, Master) ->
+init(Id, Rnd, Master) ->
     io:format("Master ~p started~n", [Id]),
+    random:seed(Rnd, Rnd, Rnd),
     leader(Id, Master, [], [Master]),
     ok.
 
@@ -40,22 +43,33 @@ leader(Id, Master, Slaves, Group) ->
 
 bcast(_Id, Msg, Slaves) ->
     % io:format("Group ~p multicasting ~p~n", [_Id, Msg]),
-    lists:foreach(fun(Slave) -> Slave ! Msg end, Slaves).
+    lists:foreach(fun(Slave) -> Slave ! Msg, crash(_Id) end, Slaves).
+
+crash(Id) ->
+    case random:uniform(?arghh) of
+        ?arghh ->
+            io:format("leader ~w: crash~n",[Id]),
+            exit(no_luck);
+        _ ->
+            ok
+    end.
         
 start(Id, Grp) ->
     Self = self(),
-    {ok, spawn_link(fun() -> init(Id, Grp, Self) end)}.
+    Rnd = random:uniform(1000),
+    {ok, spawn_link(fun() -> init(Id, Rnd, Grp, Self) end)}.
 
 % Grp: anyone of application processes in the group
 % Master: the leader process identifier of the application layer
-init(Id, Grp, Master) ->
+init(Id, Rnd, Grp, Master) ->
     io:format("Slave ~p started~n", [Id]),
+    random:seed(Rnd, Rnd, Rnd),
     Self = self(),
     % it could be that a node wants to join a dead leader, so we need timeout
     Grp ! {join, Master, Self},
     receive
         {view, [Leader | Slaves], Group} ->
-            erlang:minitor(process, Leader),
+            monitor(process, Leader),
             Master ! {view, Group},
             slave(Id, Master, Leader, Slaves, Group)
     after ?timout ->
@@ -98,6 +112,6 @@ election(Id, Master, Slaves, [_|Group]) ->
             Master ! {view, Group},
             leader(Id, Master, Slaves, Group);
         [Leader | Rest] ->
-            erlang:minitor(process, Leader),
+            monitor(process, Leader),
             slave(Id, Master, Leader, Rest, Group)
     end.

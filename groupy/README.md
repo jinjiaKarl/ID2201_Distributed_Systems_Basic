@@ -38,9 +38,39 @@ Group 1 stopped
 
 ## gms2
 ```bash
-# > W1 = test:moew(3, gms2, 1000).
-> W1 = test:first(1, gms2, 1000).
-> test:add(2, gms2, W1, 1000) 
-> test:add(3, gms2, W1, 1000) 
-> test:add(3, gms2, W1, 1000) 
+# start 4 nodes, and kill the leader node one by one
+1> W1 = test:more(4, gms2, 1000).
+Master 1 started
+Slave 2 started
+Slave 3 started
+Slave 4 started
+<0.84.0>
+Group 1 stopped
+Slave 2: election
+Slave 3: election
+Slave 4: election
+Slave 2: I am the new leader
+Group 2 stopped
+Slave 3: election
+Slave 4: election
+Slave 3: I am the new leader
+Group 3 stopped
+Slave 4: election
+Slave 4: I am the new leader
+Group 4 stopped
+2> 
+
+# > W1 = test:first(1, gms2, 1000).
+# > test:add(2, gms2, W1, 1000).
+# > test:add(3, gms2, W1, 1000). 
+# > test:add(3, gms2, W1, 1000). 
+# > test:add(4, gms2, W1, 1000). 
+```
+## gms2_crash
+```bash
+1> W1 = test:more(4, gms2_crash, 1000).
+Master 1 started
+Slave 2 started
+Slave 3 started
+Slave 4 started
 ```

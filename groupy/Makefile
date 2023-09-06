@@ -9,6 +9,7 @@ MODS = gui \
 	   worker \
 	   gms1 \
 	   gms2 \
+	   gms2_crash \
 	   test 
 
 

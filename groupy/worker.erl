@@ -117,7 +117,7 @@ worker(Id, Cast, Color, Gui, Sleep) ->
 	    worker(Id, Cast, Color, Gui, Sleep);	    
 
 	Error ->
-    	    io:format("strange message: ~w~n", [Error]),
+    	io:format("strange message: ~w~n", [Error]),
 	    worker(Id, Cast, Color, Gui, Sleep)
 
     after Wait ->

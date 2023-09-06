@@ -36,9 +36,9 @@ init(Id, Module, Rnd, Peer, Sleep) ->
 join(Id, Cast) ->
     receive 
 	{view, _} ->
-	    Ref = make_ref(),
+	    Ref = make_ref(), % return an unique reference
 	    Cast ! {mcast, {state_request, Ref}},
-	    state(Id, Ref);
+	    state(Id, Ref); % get current state
 	{error, Reason} ->
 	    {error, Reason}
     end.

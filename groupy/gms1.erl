@@ -38,7 +38,7 @@ leader(Id, Master, Slaves, Group) ->
         end.
 
 bcast(Id, Msg, Slaves) ->
-    io:format("Group ~p multicasting ~p~n", [Id, Msg]),
+    % io:format("Group ~p multicasting ~p~n", [Id, Msg]),
     lists:foreach(fun(Slave) -> Slave ! Msg end, Slaves).
         
 start(Id, Grp) ->

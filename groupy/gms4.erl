@@ -2,7 +2,7 @@
 -export([start/1, start/2]).
 -define(timout,1000).
 -define(arghh,1000).
--define(losth,1000).
+-define(losth,100).
 -define(resend_timeout,1000).
 
 

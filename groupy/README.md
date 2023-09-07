@@ -91,6 +91,8 @@ Group 4 stopped
 ## gms4
 In erlang, messages are delivered in FIFO order, not that they actually do arrive. So the message could be lost, we need ACK mechanism to ensure the message is delivered.
 
+In the foreach, we have sequential executions of sending messages and receving acks. This significantly slows down the process of broadcasting.
+
 ```bash
 1> W1 = test:more(5, gms4, 1000).
 

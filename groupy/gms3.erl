@@ -118,9 +118,9 @@ election(Id, Master, N, Last, Slaves, [_|Group]) ->
             %  process finds itself being the first node, and it will thus become the leader of the group.
             io:format("Slave ~p: I am the new leader~n", [Id]),
             bcast(Id, Last, Rest), % new leader sends the last message to all other nodes
-            bcast(Id, {view, Slaves, Group}, Rest),
+            bcast(Id, {view, N, Slaves, Group}, Rest),
             Master ! {view, Group},
-            leader(Id, Master, N+1, Slaves, Group);
+            leader(Id, Master, N+1, Rest, Group);
         [Leader | Rest] ->
             monitor(process, Leader),
             slave(Id, Master, Leader, N, Last, Rest, Group)

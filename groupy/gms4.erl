@@ -41,7 +41,9 @@ leader(Id, Master, N, Slaves, Group) ->
             leader(Id, Master, N+1,Slaves2, Group2);
         stop ->
             io:format("Group ~p stopped~n", [Id]),
-            ok
+            ok;
+        Message ->
+            io:format("Master ~p ~w: received unexpected message ~p~n", [Id, self(), Message])
         end.
 
 bcast(Id, Msg, Slaves) ->
@@ -126,7 +128,7 @@ slave(Id, Master, Leader, N, Last, Slaves, Group) ->
             Master ! Msg,
             Last2 = {msg, I, Msg},
             slave(Id, Master, Leader, I+1, Last2, Slaves, Group);
-        {view, I, [Leader | Slaves2], Group2} ->
+       {view, I, [Leader | Slaves2], Group2} ->
             % a multicasted view from the leader. A view is delivered to the master process.
             Leader ! {ack, Id},
             Master ! {view, Group2},
@@ -135,7 +137,9 @@ slave(Id, Master, Leader, N, Last, Slaves, Group) ->
         {'DOWN', _Ref, process, Leader, _Reason} ->
             election(Id, Master, N, Last,Slaves, Group);
         stop ->
-            ok
+            ok;
+        Message ->
+            io:format("Slave ~p ~w: received unexpected message ~p~n", [Id, self(), Message])
     end.
 
 
@@ -147,9 +151,9 @@ election(Id, Master, N, Last, Slaves, [_|Group]) ->
             %  process finds itself being the first node, and it will thus become the leader of the group.
             io:format("Slave ~p ~w: I am the new leader~n", [Id, self()]),
             bcast(Id, Last, Rest), % new leader sends the last message to all other nodes
-            bcast(Id, {view, Slaves, Group}, Rest),
+            bcast(Id, {view, N, Slaves, Group}, Rest),
             Master ! {view, Group},
-            leader(Id, Master, N+1, Slaves, Group);
+            leader(Id, Master, N+1, Rest, Group);
         [Leader | Rest] ->
             monitor(process, Leader),
             slave(Id, Master, Leader, N, Last, Rest, Group)

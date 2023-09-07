@@ -44,15 +44,15 @@ leader(Id, Master, N, Slaves, Group) ->
             ok
         end.
 
-bcast(_Id, Msg, Slaves) ->
-    % io:format("Group ~p multicasting ~p~n", [_Id, Msg]),
+bcast(Id, Msg, Slaves) ->
+    % io:format("Group ~p multicasting ~p~n", [Id, Msg]),
     lists:foreach(fun(Slave) -> 
         % handle resend
-        sendMsg(Slave, Msg),
-        crash(_Id) 
+        sendMsg(Id, Slave, Msg),
+        crash(Id) 
     end, Slaves).
 
-sendMsg(Slave, Msg) ->
+sendMsg(Id, Slave, Msg) ->
     % simulate lost message
     case random:uniform(?losth) of
         ?losth ->
@@ -63,12 +63,12 @@ sendMsg(Slave, Msg) ->
     end,
     % receive ack
     receive
-        {ack, Slave} ->
-            io:format("~w received message ~w\n", [Slave, Msg]),
+        {ack, Id} ->
+            io:format("~w received message ~w\n", [Id, Msg]),
             ok
     after ?resend_timeout ->
-        io:format("resending message ~w to ~w\n", [Msg, Slave]),
-        sendMsg(Slave, Msg)
+        io:format("resending message ~w to ~w\n", [Msg, Id]),
+        sendMsg(Id, Slave, Msg)
     end.
 
 crash(Id) ->
@@ -96,6 +96,7 @@ init(Id, Rnd, Grp, Master) ->
     receive
         {view, N, [Leader | Slaves], Group} ->
             monitor(process, Leader),
+            Leader ! {ack, Id},
             Master ! {view, Group},
             Last = {view, N, [Leader | Slaves], Group},
             slave(Id, Master, Leader, N+1, Last, Slaves, Group)
@@ -127,6 +128,7 @@ slave(Id, Master, Leader, N, Last, Slaves, Group) ->
             slave(Id, Master, Leader, I+1, Last2, Slaves, Group);
         {view, I, [Leader | Slaves2], Group2} ->
             % a multicasted view from the leader. A view is delivered to the master process.
+            Leader ! {ack, Id},
             Master ! {view, Group2},
             Last2 = {view, I, [Leader | Slaves2], Group2},
             slave(Id, Master, Leader, I+1, Last2, Slaves2, Group2);

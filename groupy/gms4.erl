@@ -1,9 +1,9 @@
 -module(gms4).
 -export([start/1, start/2]).
--define(timout,100).
+-define(timout,1000).
 -define(arghh,1000).
 -define(losth,1000).
--define(resend_timeout,100).
+-define(resend_timeout,1000).
 
 
 start(Id) ->
@@ -48,11 +48,11 @@ bcast(Id, Msg, Slaves) ->
     % io:format("Group ~p multicasting ~p~n", [Id, Msg]),
     lists:foreach(fun(Slave) -> 
         % handle resend
-        sendMsg(Id, Slave, Msg),
+        sendMsg(Slave, Msg),
         crash(Id) 
     end, Slaves).
 
-sendMsg(Id, Slave, Msg) ->
+sendMsg(Slave, Msg) ->
     % simulate lost message
     case random:uniform(?losth) of
         ?losth ->
@@ -63,12 +63,12 @@ sendMsg(Id, Slave, Msg) ->
     end,
     % receive ack
     receive
-        {ack, Id} ->
-            io:format("~w received message ~w\n", [Id, Msg]),
+        {ack, SlaveId} ->
+            io:format("~w received message ~w\n", [SlaveId, Msg]),
             ok
     after ?resend_timeout ->
-        io:format("resending message ~w to ~w\n", [Msg, Id]),
-        sendMsg(Id, Slave, Msg)
+        io:format("resending message ~w to ~w\n", [Msg, Slave]),
+        sendMsg(Slave, Msg)
     end.
 
 crash(Id) ->

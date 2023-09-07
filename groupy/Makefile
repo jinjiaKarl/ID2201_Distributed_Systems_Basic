@@ -11,6 +11,7 @@ MODS = gui \
 	   gms2 \
 	   gms2_crash \
 	   gms3 \
+	   gms4 \
 	   test 
 
 

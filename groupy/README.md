@@ -78,5 +78,20 @@ Group 4 stopped
 
 ## gms3
 ```bash
-1> W1 = test:more(5, gms3, 1000).
+# 1> W1 = test:more(5, gms3, 1000).
+> W1 = test:first(1, gms3, 1000).
+> W2 = test:add(2, gms3, W1, 1000).
+> W3 = test:add(3, gms3, W1, 1000).
+> W4 = test:add(4, gms3, W1, 1000).
+> W5 = test:add(5, gms3, W1, 1000).
+
+> W6 = test:add(5, gms3, W2, 1000).
+```
+
+## gms4
+In erlang, messages are delivered in FIFO order, not that they actually do arrive. So the message could be lost, we need ACK mechanism to ensure the message is delivered.
+
+```bash
+1> W1 = test:more(5, gms4, 1000).
+
 ```

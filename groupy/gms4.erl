@@ -12,7 +12,7 @@ start(Id) ->
     {ok, spawn_link(fun() -> init(Id, Rnd, Self) end)}.
 
 init(Id, Rnd, Master) ->
-    io:format("Master ~p started~n", [Id]),
+    io:format("Master ~p ~w started~n", [Id, self()]),
     random:seed(Rnd, Rnd, Rnd),
     leader(Id, Master, 0, [], [Master]),
     ok.
@@ -56,7 +56,7 @@ sendMsg(Slave, Msg) ->
     % simulate lost message
     case random:uniform(?losth) of
         ?losth ->
-            io:format("message to ~w lost ~n",[Slave]),
+            io:format("message ~w to ~w lost ~n",[Msg, Slave]),
             ok;
         _ ->
             Slave ! Msg
@@ -88,7 +88,7 @@ start(Id, Grp) ->
 % Grp: anyone of application processes in the group
 % Master: the leader process identifier of the application layer
 init(Id, Rnd, Grp, Master) ->
-    io:format("Slave ~p started~n", [Id]),
+    io:format("Slave ~p ~w started~n", [Id, self()]),
     random:seed(Rnd, Rnd, Rnd),
     Self = self(),
     % it could be that a node wants to join a dead leader, so we need timeout
@@ -140,12 +140,12 @@ slave(Id, Master, Leader, N, Last, Slaves, Group) ->
 
 
 election(Id, Master, N, Last, Slaves, [_|Group]) ->
-    io:format("Slave ~p: election~n", [Id]),
+    io:format("Slave ~p ~w: election~n", [Id, self()]),
     Self = self(),
     case Slaves of
         [Self | Rest] ->
             %  process finds itself being the first node, and it will thus become the leader of the group.
-            io:format("Slave ~p: I am the new leader~n", [Id]),
+            io:format("Slave ~p ~w: I am the new leader~n", [Id, self()]),
             bcast(Id, Last, Rest), % new leader sends the last message to all other nodes
             bcast(Id, {view, Slaves, Group}, Rest),
             Master ! {view, Group},

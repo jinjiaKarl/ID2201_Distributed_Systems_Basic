@@ -6,7 +6,9 @@
 ERL = erl -name sweden@192.168.5.15 -setcookie secret -connect_all false -noshell
 
 MODS = key \
+	   storage \
        node1 \
+       node2 \
 	   test 
 
 

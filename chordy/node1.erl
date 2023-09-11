@@ -3,6 +3,9 @@
 -define(Stabilize, 1000). % 1s
 -define(Timeout, 10000). % 10s
 
+% maintain a ring structure; we will be able to add nodes in the ring 
+% but not add any elements to the store.
+
 % we are the first node in the ring
 start(Id) ->
     start(Id, nil).

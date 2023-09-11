@@ -1,9 +1,9 @@
--module(node2).
+-module(node3).
 -export([start/1, start/2]).
 -define(Stabilize, 1000). % 1s
 -define(Timeout, 10000). % 10s
 
-% add a local store to each node and the possibility to add and search for key-value pairs.
+% handle failures and node departures.
 
 % we are the first node in the ring
 start(Id) ->
@@ -16,76 +16,84 @@ start(Id, Peer) ->
 
 init(Id, Peer) ->
     Predecessor = nil,
+    Next = nil,
     {ok, Successor} = connect(Id, Peer),
     schedule_stabilize(),
     Store = storage:create(),
-    node(Id, Predecessor, Successor, Store).
+    node(Id, Predecessor, Successor, Store, Next).
 
 % we are the first node in the ring
 connect(Id, nil) ->
-    {ok, {Id, self()}};
+    {ok, {Id, nil, self()}};
 % we are connecting to an existing ring
 connect(Id, Peer) ->
     Qref = make_ref(),
     Peer ! {key, Qref, self()},
     receive
         {Qref, Skey} ->
-            {ok, {Skey, Peer}}
+            % monitor the successor
+            Sref = monitor(Peer),
+            {ok, {Skey, Sref, Peer}}
     after ?Timeout ->
         io:format("~p connect ~p timeout~n", [Id, Peer])
     end.
 
 %Id: Node identifier, aka key
-%Predecessor: {Id, Pid} of predecessor
-%Successor: {Id, Pid} of successor
-node(Id, Predecessor, Successor, Store) ->
+%Predecessor: {Id, Ref, Pid} of predecessor
+%Successor: {Id, Ref, Pid} of successor
+%Store: local store
+%Next: our successor’s successor, {Id, Pid}
+node(Id, Predecessor, Successor, Store, Next) ->
     receive
         {key, Qref, Peer} ->
             % a peer needs to know our key
             Peer ! { Qref, Id},
-            node(Id, Predecessor, Successor, Store);
+            node(Id, Predecessor, Successor, Store, Next);
         {notify, New} ->
             % a new node informs us of its existence
             {Pred, NewStore} = notify(New, Id, Predecessor, Store),
-            node(Id, Pred, Successor, NewStore);
+            node(Id, Pred, Successor, NewStore, Next);
         {request, Peer} ->
-            % a predecessor needs to know our predecessor
-            request(Peer, Predecessor),
-            node(Id, Predecessor, Successor, Store);
-        {status, Pred} ->
-            % our successor informs us about its predecessor
-            Succ = stabilize(Pred, Id, Successor),
-            node(Id, Predecessor, Succ, Store);
+            % a predecessor needs to know our predecessor and our successor
+            request(Peer, Predecessor, Successor),
+            node(Id, Predecessor, Successor, Store, Next);
+        {status, Pred, Nx} ->
+            % our successor informs us about its predecessor and its successor
+            {Succ,Nxt} = stabilize(Pred, Nx, Id, Successor),
+            node(Id, Predecessor, Succ, Store, Nxt);
         stabilize ->
             stabilize(Successor),
-            node(Id, Predecessor, Successor, Store);
+            node(Id, Predecessor, Successor, Store, Next);
         % the node sends a probe to its successor, and finnally arrives back to the node
         probe ->
             create_probe(Id, Successor, Store),
-            node(Id, Predecessor, Successor, Store);
+            node(Id, Predecessor, Successor, Store, Next);
         {probe, Id, Nodes, T} ->
             remove_probe(Id, T, Nodes, Store),
-            node(Id, Predecessor, Successor, Store);
+            node(Id, Predecessor, Successor, Store, Next);
         {probe, Ref, Nodes, T} ->
             forward_probe(Ref, T, Nodes, Id, Successor, Store),
-            node(Id, Predecessor, Successor, Store);
+            node(Id, Predecessor, Successor, Store, Next);
         {add, Key, Value, Qref, Client} ->
             % adding an element
             Added = add(Key, Value, Qref, Client, Id, Predecessor, Successor, Store),
-            node(Id, Predecessor, Successor, Added);
+            node(Id, Predecessor, Successor, Added, Next);
         {lookup, Key, Qref, Client} ->
             % lookup an element
             lookup(Key, Qref, Client, Id, Predecessor, Successor, Store),
-            node(Id, Predecessor, Successor, Store);
+            node(Id, Predecessor, Successor, Store, Next);
         {handover, Elements} ->
             Merged = storage:merge(Store, Elements),
-            node(Id, Predecessor, Successor, Merged);
+            node(Id, Predecessor, Successor, Merged, Next);
+        {'DOWN', Ref, process, _, _} ->
+            {Pred, Succ, Nxt} = down(Ref, Predecessor, Successor, Next, Id),
+            node(Id, Pred, Succ, Store, Nxt);
         Msg ->
             io:format("node ~p unexpected received ~p~n", [Id, Msg]),
-            node(Id, Predecessor, Successor, Store)
+            node(Id, Predecessor, Successor, Store, Next)
     end.
 
-create_probe(Id, {_, Spid}, Store) ->
+create_probe(Id, {_,_, Spid}, Store) ->
     io:format("Node ~p starting probe, store: ~p~n",[Id, Store]),
     Spid ! {probe, Id, [Id], erlang:system_time(micro_seconds)}.
 
@@ -95,7 +103,7 @@ remove_probe(Id, T, Nodes, Store) ->
     io:format("All nodes in the ring: ~p, duration: ~w micro seceonds~n", [Nodes, Duration]).
 
 % forward the probe to the successor
-forward_probe(Ref, T, Nodes, Id, {_, Spid}, Store) ->
+forward_probe(Ref, T, Nodes, Id, {_,_, Spid}, Store) ->
     io:format("Node ~p store: ~p~n",[Id, Store]),
     Spid ! {probe, Ref, [Id|Nodes], T}.
 
@@ -103,25 +111,25 @@ schedule_stabilize() ->
     timer:send_interval(?Stabilize, self(), stabilize).
 
 % send a request message to its successor. 
-stabilize({_, Spid}) ->
+stabilize({_, _, Spid}) ->
     Spid ! {request, self()}.
 
-% Node Id check if its the predecessor node of the successor node itself
-stabilize(Pred, Id, Successor) ->
-    {Skey, Spid} = Successor,
+% Node Id check if its the predecessor node of the successor node is itself
+stabilize(Pred, Nx, Id, Successor) ->
+    {Skey, Sref, Spid} = Successor,
     case Pred of
         nil ->
             % if predecessor is empty, inform the successor about our existence
             % the successor has no predecessor, so Node Id is the predecessor
             Spid ! {notify, {Id, self()}},
-            Successor;
+            {Successor, Nx};
         {Id, _} ->
             % Node Id is the predecessor
-            Successor;
+            {Successor, Nx};
         {Skey, _} ->
             % the predecessor of the successor is the successor, so Node Id is the predecessor
             Spid ! {notify, {Id, self()}},
-            Successor;
+            {Successor, Nx};
         {Xkey, Xpid} ->
             % the predecessor of the successor is another node
             case key:between(Xkey, Id, Skey) of
@@ -129,22 +137,25 @@ stabilize(Pred, Id, Successor) ->
                     % the predecessor of the successor is between Node Id and the successor
                     % so the other node is our new successor
                     Xpid ! {request, self()},
-                    Pred;
+                    % monitor the new successor
+                    Xref = monitor(Xpid),
+                    drop(Sref), % demonitor the old successor
+                    {{Xkey, Xref, Xpid}, {Skey, Spid}};
                 false ->
                     % Node Id is between the predecessor of the successor and the successor
                     % so Node Id is the new predecessor of the successor
                     Spid ! {notify, {Id, self()}},
-                    Successor
+                    {Successor, Nx}
             end
     end.
 
-% inform the peer that sent the request about our predecessor
-request(Peer, Predecessor) ->
+% inform the peer that sent the request about our predecessor and our successor
+request(Peer, Predecessor, {Skey, _, Spid}) ->
     case Predecessor of
         nil ->
-            Peer ! {status, nil};
-        {Pkey, Ppid} ->
-            Peer ! {status, {Pkey, Ppid}}
+            Peer ! {status, nil, {Skey, Spid}};
+        {Pkey, _, Ppid} ->
+            Peer ! {status, {Pkey, Ppid}, {Skey, Spid}}
     end.
 
 % Being notified of a node is a way for a node to
@@ -154,13 +165,18 @@ notify({Nkey, Npid}, Id, Predecessor, Store) ->
         nil ->
             % give part of a store to the predecessor
             Keep = handover(Id, Store, Nkey, Npid),
-            {{Nkey, Npid}, Keep};
-        {Pkey, _} ->
+            % the new node is our predecessor
+            Nref = monitor(Npid),
+            {{Nkey, Nref, Npid}, Keep};
+        {Pkey, Pref, _} ->
             case key:between(Nkey, Pkey, Id) of
                 true ->
                     % the new node is between our predecessor and us
                     Keep = handover(Id, Store, Nkey, Npid),
-                    {{Nkey, Npid}, Keep};
+                    % the new node is our predecessor
+                    Nref = monitor(Npid),
+                    drop(Pref), % demonitor the old predecessor
+                    {{Nkey, Nref, Npid}, Keep};
                 false ->
                     {Predecessor, Store}
             end
@@ -174,7 +190,7 @@ handover(Id, Store, Nkey, Npid) ->
 % A node will take care of all keys from (but not including) the identifier of its predecessor 
 % to (and including) the identifier of itself.  (Pkey, Id]  -> Id
 % If we are not responsible, we send an add message to our successor.
-add(Key, Value, Qref, Client, Id, {Pkey, _}, {_, Spid}, Store) ->
+add(Key, Value, Qref, Client, Id, {Pkey,_, _}, {_,_, Spid}, Store) ->
     case key:between(Key, Pkey, Id) of
         true ->
             % we are responsible
@@ -190,7 +206,7 @@ add(Key, Value, Qref, Client, Id, {Pkey, _}, {_, Spid}, Store) ->
 % determine if we are responsible for the key. 
 % If so, we do a simple lookup in the local store and then send the reply to the requester. 
 % If it is not our responsibility, we will forward the request.
-lookup(Key, Qref, Client, Id, {Pkey, _}, Successor, Store) ->
+lookup(Key, Qref, Client, Id, {Pkey, _, _}, Successor, Store) ->
     case key:between(Key, Pkey, Id) of
         true ->
             % we are responsible
@@ -198,6 +214,25 @@ lookup(Key, Qref, Client, Id, {Pkey, _}, Successor, Store) ->
             Client ! {Qref, Result};
         false ->
             % we are not responsible, forwarding to successor
-            {_, Spid} = Successor,
+            {_, _, Spid} = Successor,
             Spid ! {lookup, Key, Qref, Client}
     end.
+
+% % the predecessor failed
+down(Ref, {Pkey, Ref, _}, Successor, Next, Id) ->
+    io:format("Node ~p predecessor ~p failed~n", [Id, Pkey]),
+    {nil, Successor, Next};
+% the successor failed
+down(Ref, Predecessor, {Skey, Ref, _}, {Nkey, Npid}, Id) ->
+    io:format("Node ~p successor ~p failed~n", [Id, Skey]),
+    Nref = monitor(Npid),
+    Npid ! stabilize,
+    {Predecessor, {Nkey, Nref, Npid}, nil}.
+
+monitor(Pid) ->
+    erlang:monitor(process, Pid).
+
+drop(nil) ->
+    ok;
+drop(Pid) ->
+    erlang:demonitor(Pid, [flush]).

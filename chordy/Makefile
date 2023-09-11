@@ -9,6 +9,7 @@ MODS = key \
 	   storage \
        node1 \
        node2 \
+       node3 \
 	   test 
 
 

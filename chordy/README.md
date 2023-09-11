@@ -66,3 +66,45 @@ erl -name node3@192.168.5.15 -setcookie secret
 ```
 
 the second implementation of performance test
+```bash
+# we have eight machines and that we will use four in building the ring 
+# and four in testing the performance.
+
+
+# 1.only one node in the ring and let the four test machines add 1000 elements to the ring and then do a lookup of the elements
+## sever
+> Pid = test:start(node2).
+> register(node1, Pid).
+
+## client
+> Keys = test:keys(1000).
+> Pid = {node1, 'node1@192.168.5.15'}.
+> test:add(Keys, Pid).
+> test:check(Keys, Pid).
+
+```
+
+the third implementation with failure detection
+```bash
+# node 1
+erl -name node1@192.168.5.15 -setcookie secret
+> Pid = node3:start(1).
+> register(node1, Pid).
+> test:add(7, "hello", Pid).
+> test:add(22, "hello", Pid).
+> test:add(17, "hello", Pid).
+> Pid ! probe.
+
+# node 2
+erl -name node2@192.168.5.15 -setcookie secret
+> Pid = node3:start(20, {node1, 'node1@192.168.5.15'}).
+> Pid ! probe.
+
+# node3
+erl -name node3@192.168.5.15 -setcookie secret
+> Pid = node3:start(15, {node1, 'node1@192.168.5.15'}).
+> Pid ! probe.
+> test:lookup(7, Pid).
+
+
+```

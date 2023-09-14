@@ -76,7 +76,7 @@ router(Name, N, Hist, Intf, Table, Map) ->
             router(Name, N+1, Hist, Intf, Table, Map);
         {route, Name, _, Message} ->
             % message arrived at the final destination
-            io:format("~w: received message (~s)~n at final destination", [Name, Message]),
+            io:format("~w: received message (~s) at final destination~n", [Name, Message]),
             router(Name, N, Hist, Intf, Table, Map);
         {route, To, From, Message} ->
             % forward the message to the next hop

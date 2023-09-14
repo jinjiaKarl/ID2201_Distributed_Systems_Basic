@@ -1,6 +1,34 @@
 -module(world).
 -export([start/0, get_status/2, check_route/3]).
 
+% +----------+            +--------+    +--------+
+% |          |            |        |    |        |
+% | losangeles            |shanghai+----+guangzhou
+% +----+-----+            +----+---+    +--------+
+%      |                       |
+% +----+----+             +----+---+
+% |         |             |        |
+% | newyork +-------------+ beijing|
+% +----+----+             +--------+
+%      |
+%      |
+% +----+----+
+% |         |
+% |stockholm|
+% +----+----+
+%      |
+%      |
+% +----+----+
+% |         |
+% |gothenburg
+% +---------+
+
+% after killing usa node, when we execute the world:check_route(losangeles, shanghai, china), nothing happens.
+% when we start the usa node again, we have to manually add the interface again.
+% world:start().
+% {c1, 'china@192.168.5.15'} !  {add, newyork, {u1,'usa@192.168.5.15'}}.
+% {u1, 'usa@192.168.5.15'} !  {add, beijing, {c1,'china@192.168.5.15'}}.
+
 start() ->
     io:format("connecting stockholm, newyork, beijing ~n"),
     Usa = 'usa@192.168.5.15',

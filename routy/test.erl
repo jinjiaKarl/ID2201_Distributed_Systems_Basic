@@ -1,5 +1,5 @@
 -module(test).
--export([get_status/1, start/0, stop/0, test_route/0]).
+-export([get_status/1, start/0, stop/0, route/1]).
 
 -define(machine, 'sweden@192.168.5.15').
 
@@ -24,6 +24,10 @@
 % +-------------+
 
 get_status(Reg) ->
+    % r1:
+    % why the gateway for stockholm is malmo?
+    % because in the start procedure, we added malmo later and it replaced the gateway lund for stockholm.
+    % Table: [{goteborg,malmo},{stockholm,malmo},{uppsala,malmo},{lund,lund},{malmo,malmo}]
     Machine = 'sweden@192.168.5.15',
     Pid = spawn(fun() ->
             receive
@@ -49,7 +53,7 @@ start() ->
     r1 ! {add, lund, {r2, Machine}},
     r2 ! {add, stockholm, {r1, Machine}},
 
-    % malmo <-> stockholm
+   % malmo <-> stockholm
     r1 ! {add, malmo, {r3, Machine}},
     r3 ! {add, stockholm, {r1, Machine}},
 
@@ -77,9 +81,20 @@ start() ->
     r5 ! update,
     ok.
 
-test_route() ->
+route(City) ->
     Machine = 'sweden@192.168.5.15',
-    {r1, Machine} ! {route, uppsala, stockholm, "hello"},
+    case City of
+        uppsala ->
+            {r1, Machine} ! {route, uppsala, stockholm, "hello"};
+        malmo ->
+            {r1, Machine} ! {route, malmo, stockholm, "hello"};
+        goteborg ->
+            {r1, Machine} ! {route, goteborg, stockholm, "hello"};
+        lund ->
+            {r1, Machine} ! {route, lund, stockholm, "hello"};
+        stockholm ->
+            {r1, Machine} ! {route, stockholm, stockholm, "hello"}
+    end,
     ok.
 
 stop() ->

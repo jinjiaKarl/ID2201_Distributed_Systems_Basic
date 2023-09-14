@@ -27,8 +27,10 @@ reachable(Node, Map) ->
 % second version using foldl
 all_nodes(Map) ->
     NewList = lists:foldl(fun( { Node, Links }, Acc) ->
+        % unqiue sort
         lists:usort(lists:flatten([Node, Links, Acc]))
     end, [], Map),
+    % in assignment description, the output is in reverse order
     lists:reverse(NewList).
 
 

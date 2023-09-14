@@ -19,7 +19,7 @@ entry(Node, Sorted) ->
 replace(Node, N, Gateway, Sorted) ->
    lists:keysort(2, lists:keyreplace(Node, 1, Sorted, {Node, N, Gateway})).
 
-% updates the entry if N is smaller than the current length.
+% updates the entry only if N is smaller than the current length.
 update(Node, N, Gateway, Sorted) ->
     case entry(Node, Sorted) of
         OldN when N < OldN ->
@@ -37,6 +37,10 @@ iterate([{_, inf, _} | _], _, Table) ->
 % take the first entry in the sorted list, find the nodes in the map reachable from this entry, 
 % and for each of these nodes, update the Sorted list. 
 % The entry that you took from the sorted list is added to the routing table.
+% for example
+% sorted list: [{berlin, 3, paris}, {copenhagen, 5, amsterdam}]
+% map: [{berlin,[copenhagen]}]
+% the sorted list will be updated to [{berlin, 3, paris}, {copenhagen, 4, paris}]
 iterate([{Node, N, Gateway} | Rest], Map, Table) ->
     ReachableCities = map:reachable(Node, Map),
     Updates = lists:foldl(fun(Nd, Sorted) -> update(Nd, N+1, Gateway, Sorted) end, Rest, ReachableCities),
@@ -46,6 +50,7 @@ iterate([{Node, N, Gateway} | Rest], Map, Table) ->
 table(Gateways, Map) ->
     Nodes = map:all_nodes(Map),
     InitSortedList = lists:map(fun(X) -> {X, inf, unknown} end, Nodes),
+    % the entries of the gateways should have a length of zero and the gateway set to itself.
     SortedList = lists:foldl(fun(Node, Sorted) -> update(Node, 0, Node, Sorted) end, InitSortedList, Gateways),
     iterate(SortedList, Map, []).
 

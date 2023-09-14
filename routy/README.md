@@ -18,7 +18,7 @@ when the node is down, the node will be removed from the interface. And then it 
 erl -name sweden@192.168.5.15 -setcookie secret -connect_all false 
 > test:start().
 > test:get_state(r1).
-> test:test_route().
+> test:route(goteborg).
 > test:stop().
 ```
 
@@ -40,6 +40,6 @@ erl -name sweden@192.168.5.15 -setcookie secret -connect_all false
 # world
 erl -name world@192.168.5.15 -setcookie secret -connect_all false 
 > world:start().
-> world:get_state(s1, sweden).
+> world:get_status(s1, sweden).
 > world:check_route(losangeles, shanghai, china).
 ```

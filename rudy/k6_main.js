@@ -13,6 +13,6 @@ export const options = {
 
 // k6 run k6_main.js > benchmark_main.txt
 export default function () {
-    const url = 'http://127.0.0.1:8081/foo'
+    const url = 'http://127.0.0.1:8080/foo'
     const res = http.get(url)
 }

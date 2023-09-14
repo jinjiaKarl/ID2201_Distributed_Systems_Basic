@@ -9,7 +9,7 @@ erl -name foo@192.168.5.15 -setcookie secret -eval 'server:start(8080)'  -noshel
 
 
 # registered() to find all registered processes, but could not find the pid of the rudy process? how to deal with it?
-erl -name bar@192.168.5.15 -setcookie secret -eval 'server:stop()' -noshell
+# erl -name bar@192.168.5.15 -setcookie secret -eval 'server:stop()' -noshell
 
 # use rpc library to call the function in the remote node
 erl -name bar@192.168.5.15 -setcookie secret -eval 'rpc:call('foo@192.168.5.15', server, stop, [])' -noshell

@@ -48,5 +48,6 @@ jitter(0) ->
 jitter(Jitter) ->
     timer:sleep(rand:uniform(Jitter)). % milliseconds
 
+% inform who their peers are.
 peers(Wrk, Peers) ->
     Wrk ! {peers, Peers}.

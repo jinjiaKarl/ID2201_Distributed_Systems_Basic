@@ -38,6 +38,7 @@ run_lamport_no_q(Sleep, Jitter) ->
     worker_lamport:stop(C),
     worker_lamport:stop(D).
 
+%  test:run_lamport(2000,1000).
 run_lamport(Sleep, Jitter) ->
     Logger = loggy_lamport:start([john, paul, ringo, george]),
     A = worker_lamport:start(john, Logger, 13, Sleep, Jitter),

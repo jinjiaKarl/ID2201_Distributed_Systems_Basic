@@ -18,7 +18,7 @@ loop(Clock, HBQ) ->
         {log, From, Time, Msg} ->
             UpdatedClock = vect:update(From, Time, Clock),
 
-        % sort the HBQ above accrod to the time
+        % sort the HBQ above accroding to the time
             UpdatedHBQ = lists:sort(fun(A, B) ->
                 {_, TimeA, _} = A,
                 {_, TimeB, _} = B,
@@ -34,7 +34,7 @@ loop(Clock, HBQ) ->
             Pid ! {holdback, HBQ},
             loop(Clock, HBQ);
         stop ->
-            io:format("\nSize of Holdback Queue: ~w~n", [length(HBQ)]),
+            io:format("\nHoldback ~p~nSize of Holdback Queue: ~w~nClock ~p~n", [HBQ, length(HBQ), Clock]),
             ok
     end.
 

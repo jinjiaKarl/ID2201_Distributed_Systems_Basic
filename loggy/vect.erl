@@ -43,6 +43,7 @@ leq([{Name, Ti} | Rest], Time) ->
 
 
 % The clock should reflect what messages we have seen from each of the nodes. 
+% The initial clock will thus reflect that we have seen no messages at all.
 clock(_Nodes) ->
     [].
 

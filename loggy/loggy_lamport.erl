@@ -28,7 +28,7 @@ loop(Clock, HBQ) ->
             Pid ! {holdback, HBQ},
             loop(Clock, HBQ);
         stop ->
-            io:format("\nSize of Holdback Queue: ~w~n", [length(HBQ)]),
+            io:format("\nHoldback ~p~nSize of Holdback Queue: ~w~nClock ~p~n", [HBQ, length(HBQ), Clock]),
             ok
     end.
 

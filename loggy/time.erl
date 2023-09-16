@@ -8,9 +8,11 @@ zero() ->
 inc(_Name, T) ->
     T + 1.
 
+% merge the two Lamport time stamps (i.e., take the maximum value)
 merge(Ti, Tj) ->
     max(Ti, Tj).
 
+% true if Ti is less than or equal to Tj
 leq(Ti, Tj) ->
     case Ti =< Tj of
         true ->

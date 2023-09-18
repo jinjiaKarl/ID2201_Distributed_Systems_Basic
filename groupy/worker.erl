@@ -60,7 +60,7 @@ state(Id, Ref) ->
 % know we know everything to continue. 
 		
 init_cont(Id, Rnd, Cast, Color, Sleep) ->
-    random:seed(Rnd, Rnd, Rnd),
+    rand:seed(exsss,Rnd),
     Title = "Worker: " ++ integer_to_list(Id),
     Gui = gui:start(Title, self()),
     Gui ! {color, Color}, 
@@ -123,7 +123,7 @@ worker(Id, Cast, Color, Gui, Sleep) ->
     after Wait ->
 	    %% Ok, let's propose a change of colors
 	    %% io:format("worker ~w mcast message~n", [Id]),
-	    Cast !  {mcast, {change, random:uniform(?change)}},
+	    Cast !  {mcast, {change, rand:uniform(?change)}},
 	    worker(Id, Cast, Color, Gui, Sleep)	    
     end.
 
@@ -147,7 +147,7 @@ wait(Sleep) ->
 	Sleep == 0 -> 
 	    0; 
 	true -> 
-	    random:uniform(Sleep) 
+	    rand:uniform(Sleep) 
     end.
 
 %% Change of color, we rotate RGB and add N. Since we also make a

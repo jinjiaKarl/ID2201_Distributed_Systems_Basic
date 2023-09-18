@@ -5,13 +5,13 @@
 
 
 start(Id) ->
-    Rnd = random:uniform(1000),
+    Rnd = rand:uniform(1000),
     Self = self(),
     {ok, spawn_link(fun() -> init(Id, Rnd, Self) end)}.
 
 init(Id, Rnd, Master) ->
     io:format("Master ~p started~n", [Id]),
-    random:seed(Rnd, Rnd, Rnd),
+    rand:seed(exsss,Rnd),
     leader(Id, Master, 0, [], [Master]),
     ok.
 
@@ -47,7 +47,7 @@ bcast(_Id, Msg, Slaves) ->
     lists:foreach(fun(Slave) -> Slave ! Msg, crash(_Id) end, Slaves).
 
 crash(Id) ->
-    case random:uniform(?arghh) of
+    case rand:uniform(?arghh) of
         ?arghh ->
             io:format("leader ~w: crash~n",[Id]),
             exit(no_luck);
@@ -57,14 +57,14 @@ crash(Id) ->
         
 start(Id, Grp) ->
     Self = self(),
-    Rnd = random:uniform(1000),
+    Rnd = rand:uniform(1000),
     {ok, spawn_link(fun() -> init(Id, Rnd, Grp, Self) end)}.
 
 % Grp: anyone of application processes in the group
 % Master: the leader process identifier of the application layer
 init(Id, Rnd, Grp, Master) ->
     io:format("Slave ~p started~n", [Id]),
-    random:seed(Rnd, Rnd, Rnd),
+    rand:seed(exsss,Rnd),
     Self = self(),
     % it could be that a node wants to join a dead leader, so we need timeout
     Grp ! {join, Master, Self},

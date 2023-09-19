@@ -17,7 +17,7 @@ init(Id, Rnd, Master) ->
 
 % Id: a unique name of the node, only used for debugging;
 % Master: the process identifier of the application layer;
-% N: the sequence number of msg to be sent;
+% N: the sequence number of the next message to be sent
 % Slaves: an ordered list of the process identifiers of all slaves in the group;
 % Group: a list of all application layer processes in the group.
 leader(Id, Master, N, Slaves, Group) ->
@@ -30,7 +30,7 @@ leader(Id, Master, N, Slaves, Group) ->
             leader(Id, Master,N+1, Slaves, Group);
         {join, Wrk, Peer} ->
             % a message from a peer or the master that is a request from a node to join the group
-            % Wrk: the pro- cess identifier of the application layer
+            % Wrk: the process identifier of the application layer
             % Peer: the process identifier of its group process
             Slaves2 = lists:append(Slaves, [Peer]),
             Group2 = lists:append(Group, [Wrk]),

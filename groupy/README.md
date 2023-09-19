@@ -85,7 +85,7 @@ Group 4 stopped
 > W4 = test:add(4, gms3, W1, 1000).
 > W5 = test:add(5, gms3, W1, 1000).
 
-> W6 = test:add(5, gms3, W2, 1000).
+> W6 = test:add(6, gms3, W2, 1000).
 ```
 
 ## gms4

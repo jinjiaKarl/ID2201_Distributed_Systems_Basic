@@ -168,7 +168,7 @@ notify({Nkey, Npid}, Id, Predecessor, Store) ->
 
 handover(Id, Store, Nkey, Npid) ->
     {Rest, Keep} = storage:split(Id, Nkey, Store),
-    Npid ! {handover, Rest}, % (Id, Nkey] -> Npid
+    Npid ! {handover, Rest}, % (Id, Nkey] -> Npid (predecessor)
     Keep.
 
 % A node will take care of all keys from (but not including) the identifier of its predecessor 

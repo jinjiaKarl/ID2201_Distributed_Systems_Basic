@@ -75,9 +75,29 @@ check([Key|Keys], P, Failed, Timeout) ->
 	    check(Keys, P, Failed+1, Timeout)
     end.
 
-
+%P = {node1, 'node1@192.168.5.15'},
+benchmark(N, P) ->
+    Keys = keys(N),
+    add(Keys, P),
+    check(Keys, P).
     
-
+probe(Id) ->
+    case Id of
+        node1 ->
+            Pid = {node1, 'node1@192.168.5.15'},
+            Pid ! probe;
+        node2 ->
+            Pid = {node2, 'node2@192.168.5.15'},
+            Pid ! probe;
+        node3 ->
+            Pid = {node3, 'node3@192.168.5.15'},
+            Pid ! probe;
+        node4 ->
+            Pid = {node4, 'node4@192.168.5.15'},
+            Pid ! probe;
+        _ ->
+            io:format("Invalid node name~n")
+    end.
 
 
 

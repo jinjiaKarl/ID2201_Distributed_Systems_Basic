@@ -72,15 +72,28 @@ the second implementation of performance test
 
 
 # 1.only one node in the ring and let the four test machines add 1000 elements to the ring and then do a lookup of the elements
-## sever
+## one sever
+erl -name node1@192.168.5.15 -setcookie secret
 > Pid = test:start(node2).
 > register(node1, Pid).
 
-## client
+## four clients
 > Keys = test:keys(1000).
 > Pid = {node1, 'node1@192.168.5.15'}.
 > test:add(Keys, Pid).
 > test:check(Keys, Pid).
+
+```
+
+
+When there is only one server, no warnings will occur.
+
+But wehn there is more than one server, the warning will occur.
+```
+=WARNING REPORT==== 24-Sep-2023::18:26:02.619739 === 
+'global' at node 'node2@192.168.5.15' requested disconnect from node 'node7@192.168.5.15' in order to prevent overlapping partitions
+=WARNING REPORT==== 24-Sep-2023::18:26:02.654379 ===
+'global' at node 'node4@192.168.5.15' requested disconnect from node 'node6@192.168.5.15' in order to prevent overlapping partitions
 
 ```
 
@@ -108,3 +121,7 @@ erl -name node3@192.168.5.15 -setcookie secret
 
 
 ```
+
+
+improvement
+*  hashing of names to create unique keys for objects instead of random numbers

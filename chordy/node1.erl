@@ -93,7 +93,7 @@ schedule_stabilize() ->
 stabilize({_, Spid}) ->
     Spid ! {request, self()}.
 
-% Node Id check if its the predecessor node of the successor node itself
+% Node Id check if its the predecessor node of the successor node is current node itself
 stabilize(Pred, Id, Successor) ->
     {Skey, Spid} = Successor,
     case Pred of
@@ -115,6 +115,7 @@ stabilize(Pred, Id, Successor) ->
                 true ->
                     % the predecessor of the successor is between Node Id and the successor
                     % so the other node is our new successor
+                    % run stabilize again
                     Xpid ! {request, self()},
                     Pred;
                 false ->

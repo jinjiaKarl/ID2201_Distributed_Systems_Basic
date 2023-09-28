@@ -11,6 +11,7 @@ stop(Logger) ->
     Logger ! stop.
 
 init(Nodes) ->
+    erlang:system_flag(max_heap_size, 10000),
     loop(time:clock(Nodes), []).
 
 loop(Clock, HBQ) ->
@@ -28,7 +29,8 @@ loop(Clock, HBQ) ->
             Pid ! {holdback, HBQ},
             loop(Clock, HBQ);
         stop ->
-            io:format("\nHoldback ~p~nSize of Holdback Queue: ~w~nClock ~p~n", [HBQ, length(HBQ), Clock]),
+            HeapSize = erlang:system_info(max_heap_size),
+            io:format("\nHoldback ~p~nSize of Holdback Queue: ~w~nClock ~p~nMax heap size: ~p~n", [HBQ, length(HBQ), Clock, HeapSize]),
             ok
     end.
 

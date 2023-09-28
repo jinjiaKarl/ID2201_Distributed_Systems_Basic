@@ -41,6 +41,12 @@ loop(Clock, HBQ) ->
 log(From, Time, Msg) ->
     io:format("log: ~w ~w ~p~n", [Time, From, Msg]).
 
+% sorting doesn't help
+% (1,1,1) 3 true
+% (4,2,0) 6 false
+% (3,3,3) 9 true
+
+% current: (3,3,3)  9
 checkSafe(_, [], UnSafe) ->
     UnSafe;
 checkSafe(Clock, [{From, Time, Msg} | Rest], UnSafe) ->

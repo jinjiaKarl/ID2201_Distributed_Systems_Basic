@@ -23,6 +23,9 @@
 % |gothenburg
 % +---------+
 
+
+% after kill usa node, every router process need to manually execute broadcast and update.
+
 % after killing usa node, when we execute the world:check_route(losangeles, shanghai, china), nothing happens.
 % when we start the usa node again, we have to manually add the interface again.
 % world:start().
@@ -79,7 +82,8 @@ get_status(Reg, Country) ->
             io:format("Country not found~n")
     end.
 
-% world:check_route(losangeles, shanghai, china).
+% {c3, 'china@192.168.5.15'} ! {route, gothenburg, guangzhou, "hello"}.
+% world:check_route(losangeles, beijing, china).
 % it will show `losangeles: received message (Hello) at final destination`on the usa terminal
 check_route(To, From, Country) ->
     Usa = 'usa@192.168.5.15',

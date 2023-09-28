@@ -176,3 +176,8 @@ A vector with one counter per process:
 
 Receiving a message:
 • merge the internal clock and the time stamp of the message
+
+
+cons:
+* take up some space
+* when processess leaves, we need to clean up the vector clock

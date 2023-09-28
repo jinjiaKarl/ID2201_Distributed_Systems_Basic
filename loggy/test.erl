@@ -59,7 +59,8 @@ run_lamport(Sleep, Jitter) ->
 % How large will the holdback queue be, make some tests and try to find the maximum number of entries.
 % the maximum number of entries depends on the  memory of the system and whether you're using Erlang/OTP 32 or 64 bit.
 % https://stackoverflow.com/questions/43864049/maximum-length-limitation-in-list-in-erlang
-% run_lamport_hbq(20, 10).
+% by default, the size of heap is no limit, https://www.erlang.org/doc/apps/erts/garbagecollection#sizing-the-heap
+% run_lamport_hbq(20, 0).
 run_lamport_hbq(Sleep, Jitter) ->
     Logger = loggy_lamport:start([john, paul, ringo, george]),
     % if georage is not in the peers list, then the length HBQ will always increase.
@@ -93,6 +94,13 @@ run_vector(Sleep, Jitter) ->
     worker_vect:peers(B, [A, C, D]),
     worker_vect:peers(C, [A, B, D]),
     worker_vect:peers(D, [A, B, C]),
+    spawn(fun() ->
+        timer:sleep(1000),
+        E = worker_vect:start(jinjia, Logger, 60, Sleep, Jitter),
+        worker_vect:peers(E, [A, B, C, D]),
+        timer:sleep(1000),
+        worker_vect:stop(E)
+    end),
     timer:sleep(5000),
     loggy_vect:stop(Logger),
     worker_vect:stop(A),

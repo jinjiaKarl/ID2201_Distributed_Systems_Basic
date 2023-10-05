@@ -85,7 +85,7 @@ Group 4 stopped
 > W4 = test:add(4, gms3, W1, 1000).
 > W5 = test:add(5, gms3, W1, 1000).
 
-> W6 = test:add(6, gms3, W2, 1000).
+> W6 = test:add(6, gms3, W3, 1000).
 ```
 
 ## gms4
@@ -93,7 +93,12 @@ In erlang, messages are delivered in FIFO order, not that they actually do arriv
 
 In the foreach, we have sequential executions of sending messages and receving acks. This significantly slows down the process of broadcasting.
 
+If the slave dies, we need to update the view. If not, the leader will resend msg to the died slave constantly. So, the leader also needs to monitor all slave processes. Or the leader tries a few times to send msg to the slave, if failed, update the view.
+
 ```bash
 1> W1 = test:more(5, gms4, 1000).
 
 ```
+Reliable broadcast: If any alive node receives, all alive nodes will receive. 
+
+Instead of using ack, once one slave receives the msg, it will broadcast to all slaves. To prevent infinite loop, we can use seq number to filter old msgs.

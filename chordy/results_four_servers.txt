@@ -1,0 +1,8 @@
+1000 lookup operation in 178 ms 
+0 lookups failed, 0 caused a timeout 
+1000 lookup operation in 182 ms 
+0 lookups failed, 0 caused a timeout 
+1000 lookup operation in 186 ms 
+0 lookups failed, 0 caused a timeout 
+1000 lookup operation in 184 ms 
+0 lookups failed, 0 caused a timeout 

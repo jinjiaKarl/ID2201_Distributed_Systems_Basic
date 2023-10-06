@@ -226,7 +226,7 @@ down(Ref, {Pkey, Ref, _}, Successor, Next, Id) ->
 down(Ref, Predecessor, {Skey, Ref, _}, {Nkey, Npid}, Id) ->
     io:format("Node ~p successor ~p failed~n", [Id, Skey]),
     Nref = monitor(Npid),
-    Npid ! stabilize,
+    % Npid ! stabilize, 
     {Predecessor, {Nkey, Nref, Npid}, nil}.
 
 monitor(Pid) ->

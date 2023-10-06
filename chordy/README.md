@@ -12,7 +12,7 @@ erl -name node1@192.168.5.15 -setcookie secret
 > Pid = node1:start(1).
 > register(node1, Pid).
 > Pid ! probe.
-# All nodes in the ring: [20,15,1]
+# All nodes in the ring: [20,15,1]  1 -> 15 -> 20 -> 1
 
 # node 2
 erl -name node2@192.168.5.15 -setcookie secret
@@ -89,6 +89,8 @@ erl -name node1@192.168.5.15 -setcookie secret
 When there is only one server, no warnings will occur.
 
 But wehn there is more than one server, the warning will occur.
+https://erlang.org/documentation/doc-13.0-rc1/lib/kernel-8.3/doc/html/global.html
+
 ```
 =WARNING REPORT==== 24-Sep-2023::18:26:02.619739 === 
 'global' at node 'node2@192.168.5.15' requested disconnect from node 'node7@192.168.5.15' in order to prevent overlapping partitions
@@ -118,10 +120,14 @@ erl -name node3@192.168.5.15 -setcookie secret
 > Pid = node3:start(15, {node1, 'node1@192.168.5.15'}).
 > Pid ! probe.
 > test:lookup(7, Pid).
+> # kill node3 and test:add(7, "hello", Pid). again, the node2 will take care of the data
 
 
 ```
 
 
 improvement
-*  hashing of names to create unique keys for objects instead of random numbers
+* hashing of names to create unique keys for objects instead of random numbers
+* consistent hash, virtual node
+* implement replication
+* when node joins or leaves, data migration. Now, data will be lost

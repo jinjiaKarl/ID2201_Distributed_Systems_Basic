@@ -167,6 +167,7 @@ notify({Nkey, Npid}, Id, Predecessor, Store) ->
     end.
 
 handover(Id, Store, Nkey, Npid) ->
+    % (Id, Nkey] = Rest, (Nkey, Id] = Keep
     {Rest, Keep} = storage:split(Id, Nkey, Store),
     Npid ! {handover, Rest}, % (Id, Nkey] -> Npid (predecessor)
     Keep.

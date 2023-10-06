@@ -19,6 +19,7 @@ lookup(Key, Store) ->
 
 % return a tuple {Updated, Rest} where the updated store 
 % only contains the key-value pairs requested and the rest are found in a list of key-value pairs;
+% [(From, To] | Rest] = Store
 split(From, To, Store) ->
     lists:partition(fun({Key, _}) -> key:between(Key, From, To) end, Store).
 

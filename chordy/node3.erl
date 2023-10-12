@@ -226,7 +226,8 @@ down(Ref, {Pkey, Ref, _}, Successor, Next, Id) ->
 down(Ref, Predecessor, {Skey, Ref, _}, {Nkey, Npid}, Id) ->
     io:format("Node ~p successor ~p failed~n", [Id, Skey]),
     Nref = monitor(Npid),
-    % Npid ! stabilize, 
+    % run stabilize again, but there is a periodical stabilize running
+    % Npid ! {request, self()}, 
     {Predecessor, {Nkey, Nref, Npid}, nil}.
 
 monitor(Pid) ->
@@ -234,5 +235,5 @@ monitor(Pid) ->
 
 drop(nil) ->
     ok;
-drop(Pid) ->
-    erlang:demonitor(Pid, [flush]).
+drop(Ref) ->
+    erlang:demonitor(Ref, [flush]).

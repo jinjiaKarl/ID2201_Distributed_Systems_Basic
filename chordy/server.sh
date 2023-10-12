@@ -26,5 +26,6 @@ if [ $1 == "four" ]; then
     erl -name node3@192.168.5.15 -setcookie secret -connect_all false -noshell  -eval "register(node3, test:start(node2, {node1, 'node1@192.168.5.15'}))." &
     sleep 2
     erl -name node4@192.168.5.15 -setcookie secret -connect_all false  -noshell  -eval "register(node4, test:start(node2, {node1, 'node1@192.168.5.15'}))." &
+    echo "Starting four server nodes background done"
 fi
 

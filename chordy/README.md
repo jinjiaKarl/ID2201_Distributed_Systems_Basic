@@ -1,5 +1,7 @@
 # Chordy: A Distributed Hash Table
 
+key idea: once the successor changes, the stabilization must be run to update the ring.
+
 # problems and solutions
 
 # run
@@ -128,6 +130,7 @@ erl -name node3@192.168.5.15 -setcookie secret
 
 improvement
 * hashing of names to create unique keys for objects instead of random numbers
+* routing table to speed up lookups
 * consistent hash, virtual node
 * implement replication
 * when node joins or leaves, data migration. Now, data will be lost

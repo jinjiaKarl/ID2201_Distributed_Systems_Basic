@@ -126,7 +126,33 @@ erl -name node3@192.168.5.15 -setcookie secret
 
 
 ```
+the fourth implementation with simple replication
 
+when our successor or predecessor changes, clean the replication data
+
+```bash
+# node 1
+erl -name node1@192.168.5.15 -setcookie secret
+> Pid = node4:start(1).
+> register(node1, Pid).
+> test:add(7, "hello", Pid).
+> test:add(22, "hello", Pid).
+> test:add(17, "hello", Pid).
+> Pid ! probe.
+
+# node 2
+erl -name node2@192.168.5.15 -setcookie secret
+> Pid = node4:start(20, {node1, 'node1@192.168.5.15'}).
+> Pid ! probe.
+
+# node3
+erl -name node3@192.168.5.15 -setcookie secret
+> Pid = node4:start(15, {node1, 'node1@192.168.5.15'}).
+> Pid ! probe.
+> test:lookup(7, Pid).
+> # kill node3, the 7 will be replicated to node2
+
+```
 
 improvement
 * hashing of names to create unique keys for objects instead of random numbers

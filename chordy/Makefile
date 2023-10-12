@@ -10,6 +10,7 @@ MODS = key \
        node1 \
        node2 \
        node3 \
+       node4 \
 	   test 
 
 
